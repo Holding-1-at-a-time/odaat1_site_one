@@ -11,16 +11,16 @@ export default defineSchema({
     price: v.string(),
     imageUrl: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.optional(v.number()),
+    updatedAt: v.number(),
     deletedAt: v.optional(v.number()),
     deleted: v.boolean(),
     keywords: v.array(v.string()),
     pillar: v.id("pillarPages"),
     cluster: v.id("clusterPages"),
   }).index("by_serviceSlug", ["serviceSlug"])
- .index("by_pillar", ["pillar", "cluster"]),
+    .index("by_pillar", ["pillar", "cluster"]),
 
-  
+
 
 
 
@@ -38,11 +38,11 @@ export default defineSchema({
     heroImage: v.optional(v.string()),
     createdAt: v.number(),
     relatedClusterIds: v.optional(v.array(v.id("clusterPages"))),
-    updatedAt: v.optional(v.number()),
+    updatedAt: v.number(),
   }).index("by_slug", ["slug"])
-  .index("by_service_name", ["serviceName"])
-  .index("by_updatedAt", ["updatedAt"]),
-  
+    .index("by_service_name", ["serviceName"])
+    .index("by_updatedAt", ["updatedAt"]),
+
 
   clusterPages: defineTable({
     slug: v.string(),
@@ -54,10 +54,8 @@ export default defineSchema({
     relatedClusterIds: v.optional(v.array(v.id("clusterPages"))),
     createdAt: v.number(),
     updatedAt: v.number(),
-    deletedAt: v.optional(v.number()),
-    deleted: v.boolean(),
   })
-  .index("by_updatedAt", ["updatedAt"])
+    .index("by_updatedAt", ["updatedAt"])
     .index("by_slug", ["slug"])
     .index("by_pillar", ["pillarPageId"]),
 
@@ -71,9 +69,26 @@ export default defineSchema({
     notes: v.optional(v.string()),
     createdAt: v.number(),
   })
-  .index("by_serviceSlug", ["serviceSlug"])
-  .index("by_status", ["status"])
-  .index("by_scheduled_date", ["scheduledDate"]),
+    .index("by_serviceSlug", ["serviceSlug"])
+    .index("by_status", ["status"])
+    .index("by_scheduled_date", ["scheduledDate"]),
+
+
+  chunks: defineTable({
+    text: v.string(),
+    // Updated dimensions for 'nomic-embed-text' (768)
+    // If using OpenAI, this was 1536. 
+    embedding: v.array(v.number()),
+    sourceId: v.id("pillarPages"),
+    sourceSlug: v.string(),
+  }).vectorIndex("by_embedding", {
+    vectorField: "embedding",
+    dimensions: 768, // CHANGED from 1536 for Ollama/Nomic
+  })
+    .index("by_sourceId", ["sourceId"])
+    .index("by_sourceSlug", ["sourceSlug"]),
+
+
 
   leads: defineTable({
     serviceSlug: v.string(),
@@ -84,8 +99,8 @@ export default defineSchema({
     status: v.string(),
     createdAt: v.number(),
   })
-  .index("by_serviceSlug", ["serviceSlug"])
-  .index("by_status", ["status"]),
+    .index("by_serviceSlug", ["serviceSlug"])
+    .index("by_status", ["status"]),
 
   reviews: defineTable({
     serviceSlug: v.string(),
@@ -95,7 +110,7 @@ export default defineSchema({
     isVerified: v.boolean(),
     createdAt: v.number(),
   })
-  .index("by_serviceSlug", ["serviceSlug"]),
+    .index("by_serviceSlug", ["serviceSlug"]),
 
   pageViews: defineTable({
     slug: v.string(),
@@ -138,6 +153,11 @@ export default defineSchema({
     // Internal
     lastLogin: v.number(),
   })
-  .index("by_clerk_id", ["clerkId"])
-  .index("unique_clerk_id", ["clerkId"],
+    .index("by_clerk_id", ["clerkId"])
+    .index("unique_clerk_id", ["clerkId"])
+    .index("by_email", ["email"])
+    .index("by_phone", ["phone"])
+    .index("by_role", ["role"])
+    .index("by_last_login", ["lastLogin"])
+    .index("by_last_sign_in_at", ["lastSignInAt"]),
 });

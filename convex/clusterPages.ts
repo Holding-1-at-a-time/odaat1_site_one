@@ -10,9 +10,9 @@ import { Doc } from "./_generated/dataModel";
 
 // Efficient lookup using composite index
 export const getByPillarAndSlug = query({
-  args: { 
+  args: {
     pillarSlug: v.string(),
-    slug: v.string() 
+    slug: v.string()
   },
   handler: async (ctx, args): Promise<Doc<"clusterPages"> | null> => {
     // First find the pillar page ID
@@ -20,7 +20,7 @@ export const getByPillarAndSlug = query({
       .query("pillarPages")
       .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug))
       .unique();
-    
+
     if (!pillar) return null;
 
     // Then find the cluster by pillar ID and slug
@@ -41,7 +41,7 @@ export const getByPillarSlug = query({
       .query("pillarPages")
       .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug))
       .unique();
-    
+
     if (!pillar) return [];
 
     // Then find all clusters for this pillar
@@ -62,7 +62,7 @@ export const getById = query({
 
 // Get related clusters based on the relatedClusterIds array
 export const getRelated = query({
-  args: { 
+  args: {
     clusterId: v.id("clusterPages"),
     limit: v.optional(v.number()),
   },
@@ -74,7 +74,7 @@ export const getRelated = query({
 
     const limit = args.limit ?? 5;
     const relatedIds = cluster.relatedClusterIds.slice(0, limit);
-    
+
     const relatedClusters: Doc<"clusterPages">[] = [];
     for (const id of relatedIds) {
       const relatedCluster = await ctx.db.get(id);
@@ -82,14 +82,14 @@ export const getRelated = query({
         relatedClusters.push(relatedCluster);
       }
     }
-    
+
     return relatedClusters;
   },
 });
 
 // Search clusters by keyword across all pillars
 export const searchByKeyword = query({
-  args: { 
+  args: {
     keyword: v.string(),
     pillarSlug: v.optional(v.string()),
   },
@@ -97,7 +97,7 @@ export const searchByKeyword = query({
     let clusters = await ctx.db
       .query("clusterPages")
       .collect();
-    
+
     // Filter by pillar if specified
     if (args.pillarSlug) {
       // Get the pillar ID first
@@ -105,19 +105,19 @@ export const searchByKeyword = query({
         .query("pillarPages")
         .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug!))
         .unique();
-      
+
       if (pillar) {
         clusters = clusters.filter(c => c.pillarPageId === pillar._id);
       } else {
         clusters = []; // No pillar found
       }
     }
-    
+
     // Filter by keyword in title, content, or keywords array
-    return clusters.filter(cluster => 
+    return clusters.filter(cluster =>
       cluster.title.toLowerCase().includes(args.keyword.toLowerCase()) ||
       cluster.content.toLowerCase().includes(args.keyword.toLowerCase()) ||
-      cluster.keywords.some(k => 
+      cluster.keywords.some(k =>
         k.toLowerCase().includes(args.keyword.toLowerCase())
       )
     );
@@ -126,12 +126,12 @@ export const searchByKeyword = query({
 
 // Get recent clusters across all pillars
 export const getRecent = query({
-  args: { 
+  args: {
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Doc<"clusterPages">[]> => {
     const limit = args.limit ?? 20;
-    
+
     return await ctx.db
       .query("clusterPages")
       .order("desc")
@@ -162,13 +162,13 @@ export const createClusterPage = mutation({
     }
 
     const { relatedClusterIds, ...clusterData } = args;
-    
+
     return await ctx.db.insert("clusterPages", {
       ...clusterData,
       pillarPageId: pillar._id,
       ...(relatedClusterIds && { relatedClusterIds }),
-      createdAt: 0,
-      deleted: false
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     });
   },
 });
@@ -194,7 +194,7 @@ export const updateClusterRelationships = mutation({
     await ctx.db.patch(cluster._id, {
       relatedClusterIds: args.relatedClusterIds,
     });
-    
+
     return cluster._id;
   },
 });

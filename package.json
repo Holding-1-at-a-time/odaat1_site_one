@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.57.0",
-    "@clerk/nextjs": "latest",
+    "@clerk/nextjs": "6.35.5",
     "convex": "^1.29.3",
     "next": "16.0.5",
     "react": "^19.2.0",
@@ -35,6 +35,6 @@
   },
   "packageManager": "pnpm@10.24.0",
   "engines": {
-    "node": ">=23.0.0"
+    "node": ">=25.0.0"
   }
 }

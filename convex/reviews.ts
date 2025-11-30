@@ -10,7 +10,11 @@ import { Doc } from "./_generated/dataModel";
 
 // Admin configuration - maintain this list as the single source of truth for admin access
 // Load admin emails from environment variable (comma-separated)
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").filter(Boolean);
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .filter(Boolean)
+  .map(email => email.trim())
+  .filter(Boolean);
 
 /**
  * Robust admin check function that validates admin status through multiple secure methods:
@@ -36,10 +40,10 @@ const isAdmin = (identity: any): boolean => {
   }
 
   // Method 2: Validate against email whitelist (secure fallback)
-  const userEmail = identity.email || 
-                   identity.primary || 
-                   identity.user?.email || 
-                   identity.token?.email;
+  const userEmail = identity.email ||
+    identity.primary ||
+    identity.user?.email ||
+    identity.token?.email;
 
   if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
     return true;
