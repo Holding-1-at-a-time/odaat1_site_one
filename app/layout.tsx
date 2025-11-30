@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { UserSync } from "@/components/auth/user-sync"; // Keeps your sync logic alive
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { Footer } from "@/components/layout/footer";
+import { BUSINESS_NAP } from "@/lib/constants";
+import { Header } from "@/components/layout/header";
+import { defineTable } from "convex/schema";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +22,7 @@ export const metadata: Metadata = {
   },
   description: "Professional auto detailing, ceramic coating, and paint correction in San Antonio, Stone Oak, and Alamo Heights. IDA Certified.",
   // Important for social sharing to resolve relative image paths correctly
-  metadataBase: new URL("https://odaat1.com"), 
+  metadataBase: new URL("https://odaat1.com"),
 };
 
 // JSON-LD STRUCTURED DATA
@@ -52,8 +60,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Wrap app in Convex Provider for data access */}
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        {/* 1. Clerk Provider (Auth Context) */}
+        <ClerkProvider
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+          appearance={{ baseTheme: dark }}
+        >
+          {/* 2. Convex Provider (Data Context) - Needs Clerk Context to exist first */}
+          <ConvexClientProvider>
+
+            {/* Sync Clerk Claims to Convex DB */}
+            <UserSync />
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-grow">
+                {/* Wrap app in Convex Provider for data access */}
+                <ConvexClientProvider>
+                  {children}
+                </ConvexClientProvider>
+              </main>
+              <Footer />
+            </div>
+          </ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
