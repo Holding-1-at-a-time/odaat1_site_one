@@ -12,25 +12,29 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.56.0",
-    "@clerk/nextjs": "latest",
+    "@clerk/clerk-react": "^5.57.0",
+    "@clerk/nextjs": "6.35.5",
     "convex": "^1.29.3",
-    "next": "15.5.6",
+    "next": "16.0.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@convex-dev/eslint-plugin": "^1.0.0",
-    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/eslintrc": "^3.3.3",
     "@tailwindcss/postcss": "^4.1.17",
-    "@types/node": "^20.19.25",
-    "@types/react": "^19.2.6",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.1",
-    "eslint-config-next": "15.5.6",
+    "eslint-config-next": "16.0.5",
     "npm-run-all2": "^8.0.4",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.3",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=25.0.0"
   }
 }

@@ -1,166 +1,136 @@
-"use client";
-
-import {
-  Authenticated,
-  Unauthenticated,
-  useMutation,
-  useQuery,
-} from "convex/react";
-import { api } from "../convex/_generated/api";
 import Link from "next/link";
-import { SignUpButton } from "@clerk/nextjs";
-import { SignInButton } from "@clerk/nextjs";
-import { UserButton } from "@clerk/nextjs";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+import { CheckCircle, Star, Phone } from "lucide-react";
 
-export default function Home() {
-  return (
-    <>
-      <header className="sticky top-0 z-10 bg-background p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
-        Convex + Next.js + Clerk
-        <UserButton />
-      </header>
-      <main className="p-8 flex flex-col gap-8">
-        <h1 className="text-4xl font-bold text-center">
-          Convex + Next.js + Clerk
-        </h1>
-        <Authenticated>
-          <Content />
-        </Authenticated>
-        <Unauthenticated>
-          <SignInForm />
-        </Unauthenticated>
-      </main>
-    </>
-  );
-}
+// This is a React Server Component that fetches data on the server
+export default async function Home() {
+  // Fetch featured services (pillar pages)
+  const pillarPages = await fetchQuery(api.pillarPages.listFeatured, {});
 
-function SignInForm() {
-  return (
-    <div className="flex flex-col gap-8 w-96 mx-auto">
-      <p>Log in to see the numbers</p>
-      <SignInButton mode="modal">
-        <button className="bg-foreground text-background px-4 py-2 rounded-md">
-          Sign in
-        </button>
-      </SignInButton>
-      <SignUpButton mode="modal">
-        <button className="bg-foreground text-background px-4 py-2 rounded-md">
-          Sign up
-        </button>
-      </SignUpButton>
-    </div>
-  );
-}
-
-function Content() {
-  const { viewer, numbers } =
-    useQuery(api.myFunctions.listNumbers, {
-      count: 10,
-    }) ?? {};
-  const addNumber = useMutation(api.myFunctions.addNumber);
-
-  if (viewer === undefined || numbers === undefined) {
-    return (
-      <div className="mx-auto">
-        <p>loading... (consider a loading skeleton)</p>
-      </div>
-    );
-  }
+  // Fetch recent reviews for social proof
+  const recentReviews = await fetchQuery(api.reviews.listRecent, { limit: 3 });
 
   return (
-    <div className="flex flex-col gap-8 max-w-lg mx-auto">
-      <p>Welcome {viewer ?? "Anonymous"}!</p>
-      <p>
-        Click the button below and open this page in another window - this data
-        is persisted in the Convex cloud database!
-      </p>
-      <p>
-        <button
-          className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
-          onClick={() => {
-            void addNumber({ value: Math.floor(Math.random() * 10) });
-          }}
-        >
-          Add a random number
-        </button>
-      </p>
-      <p>
-        Numbers:{" "}
-        {numbers?.length === 0
-          ? "Click the button!"
-          : (numbers?.join(", ") ?? "...")}
-      </p>
-      <p>
-        Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
-          convex/myFunctions.ts
-        </code>{" "}
-        to change your backend
-      </p>
-      <p>
-        Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
-          app/page.tsx
-        </code>{" "}
-        to change your frontend
-      </p>
-      <p>
-        See the{" "}
-        <Link href="/server" className="underline hover:no-underline">
-          /server route
-        </Link>{" "}
-        for an example of loading data in a server component
-      </p>
-      <div className="flex flex-col">
-        <p className="text-lg font-bold">Useful resources:</p>
-        <div className="flex gap-2">
-          <div className="flex flex-col gap-2 w-1/2">
-            <ResourceCard
-              title="Convex docs"
-              description="Read comprehensive documentation for all Convex features."
-              href="https://docs.convex.dev/home"
-            />
-            <ResourceCard
-              title="Stack articles"
-              description="Learn about best practices, use cases, and more from a growing
-            collection of articles, videos, and walkthroughs."
-              href="https://www.typescriptlang.org/docs/handbook/2/basic-types.html"
-            />
-          </div>
-          <div className="flex flex-col gap-2 w-1/2">
-            <ResourceCard
-              title="Templates"
-              description="Browse our collection of templates to get started quickly."
-              href="https://www.convex.dev/templates"
-            />
-            <ResourceCard
-              title="Discord"
-              description="Join our developer community to ask questions, trade tips & tricks,
-            and show off your projects."
-              href="https://www.convex.dev/community"
-            />
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-20">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+            Premier Auto Detailing
+            <span className="block text-primary">San Antonio</span>
+          </h1>
+          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+            Professional auto detailing, ceramic coating, and paint correction services. 
+            IDA certified technicians serving Stone Oak, Alamo Heights, and surrounding areas.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/booking"
+              className="bg-primary text-white font-bold py-4 px-8 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Book Appointment
+            </Link>
+            <Link 
+              href="/services"
+              className="border border-primary text-primary font-bold py-4 px-8 rounded-lg hover:bg-primary/10 transition-colors"
+            >
+              View Services
+            </Link>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function ResourceCard({
-  title,
-  description,
-  href,
-}: {
-  title: string;
-  description: string;
-  href: string;
-}) {
-  return (
-    <div className="flex flex-col gap-2 bg-slate-200 dark:bg-slate-800 p-4 rounded-md h-28 overflow-auto">
-      <a href={href} className="text-sm underline hover:no-underline">
-        {title}
-      </a>
-      <p className="text-xs">{description}</p>
+      {/* Services Overview */}
+      <section className="py-20 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white text-center mb-16">Our Services</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pillarPages?.map((service: { _id: string; slug: string; serviceName: string; metaDescription: string }) => (
+              <Link 
+                key={service._id}
+                href={`/services/${service.slug}`}
+                className="bg-slate-900 border border-slate-800 p-6 rounded-xl hover:border-primary transition-all group"
+              >
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary">
+                  {service.serviceName}
+                </h3>
+                <p className="text-slate-400 text-sm">{service.metaDescription}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-20 bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white text-center mb-16">Why Choose One Detail At A Time</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <CheckCircle className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">IDA Certified</h3>
+              <p className="text-slate-400">International Detailing Association certified technicians with years of experience.</p>
+            </div>
+            <div className="text-center">
+              <Star className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Premium Results</h3>
+              <p className="text-slate-400">We use only the highest quality products and proven techniques for lasting results.</p>
+            </div>
+            <div className="text-center">
+              <Phone className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Local Experts</h3>
+              <p className="text-slate-400">Proudly serving San Antonio, Stone Oak, Alamo Heights, and surrounding communities.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Reviews */}
+      {recentReviews && recentReviews.length > 0 && (
+        <section className="py-20 bg-slate-950">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-4xl font-bold text-white text-center mb-16">What Our Customers Say</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {recentReviews.map((review: { _id: string; rating: number; comment: string; customerName: string; isVerified: boolean }) => (
+                <div key={review._id} className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
+                  <div className="flex items-center mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-slate-600'}`} 
+                      />
+                    ))}
+                  </div>
+                  <p className="text-slate-300 mb-4">"{review.comment}"</p>
+                  <div className="text-sm text-slate-500">
+                    <p className="font-medium text-white">{review.customerName}</p>
+                    {review.isVerified && (
+                      <span className="text-primary text-xs">Verified Customer</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA Section */}
+      <section className="py-20 bg-primary">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to Make Your Car Shine?</h2>
+          <p className="text-primary-foreground/90 text-lg mb-8">
+            Book your appointment today and experience the difference professional detailing makes.
+          </p>
+          <Link 
+            href="/booking"
+            className="bg-white text-primary font-bold py-4 px-8 rounded-lg hover:bg-slate-100 transition-colors"
+          >
+            Schedule Service
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
