@@ -1,0 +1,111 @@
+// file: convex/reindex.ts
+import { internalAction, internalMutation, internalQuery } from "./_generated/server";
+import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
+import { ollama } from "ollama-ai-provider";
+import { embed } from "ai";
+
+// 1. HELPER: Delete all existing vector data
+export const clearChunks = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        const chunks = await ctx.db.query("chunks").collect();
+        for (const chunk of chunks) {
+            await ctx.db.delete(chunk._id);
+        }
+        return chunks.length;
+    },
+});
+
+// 2. HELPER: Fetch all text content to be embedded
+export const getAllContent = internalQuery({
+    args: {},
+    handler: async (ctx) => {
+        const pillars = await ctx.db.query("pillarPages").collect();
+        const clusters = await ctx.db.query("clusterPages").collect();
+
+        return [
+            ...pillars.map(p => ({
+                id: p._id,
+                slug: p.slug,
+                text: `${p.title}\n\n${p.description || p.metaDescription}\n\n${p.content}`,
+                type: "pillar"
+            })),
+            ...clusters.map(c => ({
+                id: c._id, // Note: Schema stores sourceId as pillarId, but we might want to track specific page
+                slug: c.slug,
+                text: `${c.title}\n\n${c.description || c.metaDescription}\n\n${c.content}`,
+                type: "cluster"
+            }))
+        ];
+    },
+});
+
+// 3. HELPER: Save a single embedded chunk
+export const saveChunk = internalMutation({
+    args: {
+        text: v.string(),
+        embedding: v.array(v.number()),
+        sourceId: v.id("pillarPages"), // Using pillar ID as the main reference
+        sourceSlug: v.string(),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.insert("chunks", {
+            text: args.text,
+            embedding: args.embedding,
+            sourceId: args.sourceId,
+            sourceSlug: args.sourceSlug,
+        });
+    },
+});
+
+// 4. MAIN ACTION: Orchestrates the re-indexing
+export const reseed = internalAction({
+    args: {},
+    handler: async (ctx) => {
+        console.log("🧹 Clearing old chunks...");
+        const deleted = await ctx.runMutation(internal.reindex.clearChunks, {});
+        console.log(`Deleted ${deleted} old chunks.`);
+
+        console.log("📚 Fetching content...");
+        const pages = await ctx.runQuery(internal.reindex.getAllContent, {});
+
+        let totalChunks = 0;
+
+        for (const page of pages) {
+            console.log(`Processing: ${page.slug}`);
+
+            // Simple text splitter (split by double newline for paragraphs)
+            // In production, use a library like 'langchain/text_splitter'
+            const rawChunks = page.text.split("\n\n").filter(t => t.length > 50);
+
+            for (const chunkText of rawChunks) {
+                try {
+                    // Generate Embedding via Ollama
+                    const { embedding } = await embed({
+                        model: ollama.textEmbeddingModel("nomic-embed-text"),
+                        value: chunkText,
+                    });
+
+                    // Only process pillars for now to avoid type errors with sourceId
+                    if (page.type === "pillar") {
+                        await ctx.runMutation(internal.reindex.saveChunk, {
+                            text: chunkText,
+                            embedding: embedding,
+                            sourceId: page.id as any, // Cast to Id<"pillarPages">
+                            sourceSlug: page.slug,
+                        });
+                        totalChunks++;
+                    } else {
+                        console.log(`Skipping cluster page ${page.slug} for now (requires schema update for sourceId union)`);
+                    }
+
+                } catch (error) {
+                    console.error(`Error embedding chunk for ${page.slug}:`, error);
+                }
+            }
+        }
+
+        return `Re-indexing complete. Created ${totalChunks} vector embeddings.`;
+    },
+});
