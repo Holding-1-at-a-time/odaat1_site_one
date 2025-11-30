@@ -15,13 +15,19 @@ export const getByPillarAndSlug = query({
     slug: v.string() 
   },
   handler: async (ctx, args): Promise<Doc<"clusterPages"> | null> => {
-    // Uses the "by_pillar_and_slug" index for optimal performance
+    // First find the pillar page ID
+    const pillar = await ctx.db
+      .query("pillarPages")
+      .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug))
+      .unique();
+    
+    if (!pillar) return null;
+
+    // Then find the cluster by pillar ID and slug
     return await ctx.db
       .query("clusterPages")
-      .withIndex("by_pillar_and_slug", (q) => 
-        q.eq("pillarSlug", args.pillarSlug)
-         .eq("slug", args.slug)
-      )
+      .withIndex("by_pillar", (q) => q.eq("pillarPageId", pillar._id))
+      .filter((q) => q.eq(q.field("slug"), args.slug))
       .unique();
   },
 });
@@ -30,9 +36,18 @@ export const getByPillarAndSlug = query({
 export const getByPillarSlug = query({
   args: { pillarSlug: v.string() },
   handler: async (ctx, args): Promise<Doc<"clusterPages">[]> => {
+    // First find the pillar page ID
+    const pillar = await ctx.db
+      .query("pillarPages")
+      .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug))
+      .unique();
+    
+    if (!pillar) return [];
+
+    // Then find all clusters for this pillar
     return await ctx.db
       .query("clusterPages")
-      .withIndex("by_pillar_and_slug", (q) => q.eq("pillarSlug", args.pillarSlug))
+      .withIndex("by_pillar", (q) => q.eq("pillarPageId", pillar._id))
       .collect();
   },
 });
@@ -85,7 +100,17 @@ export const searchByKeyword = query({
     
     // Filter by pillar if specified
     if (args.pillarSlug) {
-      clusters = clusters.filter(c => c.pillarSlug === args.pillarSlug);
+      // Get the pillar ID first
+      const pillar = await ctx.db
+        .query("pillarPages")
+        .withIndex("by_slug", (q) => q.eq("slug", args.pillarSlug!))
+        .unique();
+      
+      if (pillar) {
+        clusters = clusters.filter(c => c.pillarPageId === pillar._id);
+      } else {
+        clusters = []; // No pillar found
+      }
     }
     
     // Filter by keyword in title, content, or keywords array
@@ -123,7 +148,7 @@ export const createClusterPage = mutation({
     metaDescription: v.string(),
     content: v.string(),
     keywords: v.array(v.string()),
-    relatedClusterIds: v.array(v.id("clusterPages")),
+    relatedClusterIds: v.optional(v.array(v.id("clusterPages"))),
   },
   handler: async (ctx, args) => {
     // First find the pillar page to get its ID
@@ -136,11 +161,40 @@ export const createClusterPage = mutation({
       throw new Error(`Pillar page with slug "${args.pillarSlug}" not found`);
     }
 
-    const clusterId = await ctx.db.insert("clusterPages", {
-      ...args,
+    const { relatedClusterIds, ...clusterData } = args;
+    
+    return await ctx.db.insert("clusterPages", {
+      ...clusterData,
       pillarPageId: pillar._id,
+      ...(relatedClusterIds && { relatedClusterIds }),
+      createdAt: 0,
+      deleted: false
+    });
+  },
+});
+
+// Update cluster page relationships
+export const updateClusterRelationships = mutation({
+  args: {
+    clusterSlug: v.string(),
+    relatedClusterIds: v.array(v.id("clusterPages")),
+  },
+  handler: async (ctx, args) => {
+    // Find the cluster by slug
+    const cluster = await ctx.db
+      .query("clusterPages")
+      .withIndex("by_slug", (q) => q.eq("slug", args.clusterSlug))
+      .unique();
+
+    if (!cluster) {
+      throw new Error(`Cluster page with slug "${args.clusterSlug}" not found`);
+    }
+
+    // Update the relatedClusterIds
+    await ctx.db.patch(cluster._id, {
+      relatedClusterIds: args.relatedClusterIds,
     });
     
-    return clusterId;
+    return cluster._id;
   },
 });

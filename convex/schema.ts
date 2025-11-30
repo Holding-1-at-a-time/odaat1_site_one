@@ -1,64 +1,143 @@
+// file: convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// Topic Cluster Database Schema
-// This schema implements the Topic Cluster architecture for SEO optimization
 export default defineSchema({
-  // PILLAR PAGES (broad service categories)
-  // These represent the broad service categories. They act as the "Parent"
-  // nodes in our content graph.
-  pillarPages: defineTable({
-    slug: v.string(), // The URL path segment (e.g., "auto-detailing"). Unique identifier.
-    serviceName: v.string(), // Human-readable name (e.g., "Auto Detailing").
-    title: v.string(), // SEO Title Tag (<title>).
-    metaDescription: v.string(), // SEO Meta Description.
-    content: v.string(), // The full HTML or Markdown body content.
-    keywords: v.array(v.string()), // Metadata for internal search or tagging.
-    
-    // SEO Fields
-    updatedAt: v.number(), // Timestamp for sitemap generation (lastmod).
-  }).index("by_slug", ["slug"]), // CRITICAL: Allows efficient lookup by URL component.
+  services: defineTable({
+    serviceSlug: v.string(),
+    name: v.string(),
+    description: v.string(),
+    durationMinutes: v.number(),
+    price: v.string(),
+    imageUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+    deletedAt: v.optional(v.number()),
+    deleted: v.boolean(),
+    keywords: v.array(v.string()),
+    pillar: v.id("pillarPages"),
+    cluster: v.id("clusterPages"),
+  }).index("by_serviceSlug", ["serviceSlug"])
+ .index("by_pillar", ["pillar", "cluster"]),
 
-  // CLUSTER PAGES (specific sub-topics)
-  // These are the "Child" nodes. They link back to a Pillar page, creating
-  // a dense internal linking structure that Google favors.
-  clusterPages: defineTable({
-    slug: v.string(), // e.g., "paint-protection".
-    pillarPageId: v.id("pillarPages"), // Foreign Key: Connects this cluster to its parent.
-    pillarSlug: v.string(), // Denormalized field. Stores parent slug to avoid extra joins during routing.
-    
+  
+
+
+
+  pillarPages: defineTable({
+    slug: v.string(),
+    serviceName: v.string(),
     title: v.string(),
     metaDescription: v.string(),
     content: v.string(),
     keywords: v.array(v.string()),
-    
-    // Internal Linking: IDs of other clusters this page should link to.
-    relatedClusterIds: v.array(v.id("clusterPages")),
-  })
-  .index("by_slug", ["slug"]) // Lookup independent of parent.
-  .index("by_pillar_and_slug", ["pillarSlug", "slug"]) // Efficient composite lookup for nested routes: /services/[service]/[cluster]
-  .index("by_pillar", ["pillarPageId"]), // Fast retrieval of ALL clusters for a specific pillar.
+    reviewCount: v.optional(v.number()),
+    ratingValue: v.optional(v.number()),
+    startingPrice: v.optional(v.string()),
+    keyFeatures: v.optional(v.array(v.string())),
+    heroImage: v.optional(v.string()),
+    createdAt: v.number(),
+    relatedClusterIds: v.optional(v.array(v.id("clusterPages"))),
+    updatedAt: v.optional(v.number()),
+  }).index("by_slug", ["slug"])
+  .index("by_service_name", ["serviceName"])
+  .index("by_updatedAt", ["updatedAt"]),
+  
 
-  // BOOKINGS
-  // Stores customer inquiries. Privacy is key here, so this table is not public.
+  clusterPages: defineTable({
+    slug: v.string(),
+    pillarPageId: v.id("pillarPages"),
+    title: v.string(),
+    metaDescription: v.string(),
+    content: v.string(),
+    keywords: v.array(v.string()),
+    relatedClusterIds: v.optional(v.array(v.id("clusterPages"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    deletedAt: v.optional(v.number()),
+    deleted: v.boolean(),
+  })
+  .index("by_updatedAt", ["updatedAt"])
+    .index("by_slug", ["slug"])
+    .index("by_pillar", ["pillarPageId"]),
+
   bookings: defineTable({
     serviceSlug: v.string(),
     customerName: v.string(),
     customerEmail: v.string(),
     customerPhone: v.string(),
-    scheduledDate: v.string(), // ISO Date String (YYYY-MM-DD).
-    status: v.string(), // Workflow state: "pending", "confirmed", "completed", "cancelled".
+    scheduledDate: v.number(),
+    status: v.string(),
+    notes: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_status", ["status"]), // efficient filtering for Admin Dashboard.
+  })
+  .index("by_serviceSlug", ["serviceSlug"])
+  .index("by_status", ["status"])
+  .index("by_scheduled_date", ["scheduledDate"]),
 
-  // REVIEWS
-  // Social proof is critical for Local SEO.
-  reviews: defineTable({
-    serviceSlug: v.optional(v.string()), // Optional: Link review to specific service.
-    customerName: v.string(),
-    rating: v.number(), // 1-5 integer.
-    comment: v.string(),
-    isVerified: v.boolean(), // Flag for verified purchases/bookings.
+  leads: defineTable({
+    serviceSlug: v.string(),
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.string(),
+    notes: v.optional(v.string()),
+    status: v.string(),
     createdAt: v.number(),
-  }).index("by_service", ["serviceSlug"]), // Fetch reviews specific to the page the user is viewing.
+  })
+  .index("by_serviceSlug", ["serviceSlug"])
+  .index("by_status", ["status"]),
+
+  reviews: defineTable({
+    serviceSlug: v.string(),
+    customerName: v.string(),
+    rating: v.number(),
+    comment: v.string(),
+    isVerified: v.boolean(),
+    createdAt: v.number(),
+  })
+  .index("by_serviceSlug", ["serviceSlug"]),
+
+  pageViews: defineTable({
+    slug: v.string(),
+    type: v.string(),
+    timestamp: v.number(),
+  }).index("by_slug", ["slug"]),
+
+  users: defineTable({
+    // Identity
+    clerkId: v.string(),
+    externalId: v.optional(v.string()),
+
+    // Contact
+    email: v.string(),
+    emailVerified: v.boolean(),
+    phone: v.optional(v.string()),
+    phoneVerified: v.boolean(),
+
+    // Profile
+    name: v.optional(v.string()),
+    givenName: v.optional(v.string()),
+    familyName: v.optional(v.string()),
+    nickname: v.optional(v.string()),
+    picture: v.optional(v.string()),
+    hasImage: v.boolean(),
+
+    // Security & Metadata
+    role: v.optional(v.string()), // From public_metadata.role
+    publicMetadata: v.optional(v.any()),
+    unsafeMetadata: v.optional(v.any()),
+    twoFactorEnabled: v.boolean(),
+
+    // Platform Info
+    sourcePlatform: v.optional(v.string()),
+
+    clerkCreatedAt: v.optional(v.number()),
+    clerkUpdatedAt: v.optional(v.number()),
+    lastSignInAt: v.optional(v.number()),
+
+    // Internal
+    lastLogin: v.number(),
+  })
+  .index("by_clerk_id", ["clerkId"])
+  .index("unique_clerk_id", ["clerkId"],
 });

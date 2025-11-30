@@ -28,23 +28,42 @@ export default async function ClusterPage({ params }: { params: { service: strin
   return (
     <article className="max-w-4xl mx-auto px-4 py-12">
       {/* Breadcrumb Navigation: Vital for UX and SEO link equity flow */}
-      <nav className="flex gap-2 text-sm text-slate-500 mb-8">
+      <nav aria-label="Breadcrumb" className="flex gap-2 text-sm text-slate-500 mb-8">
         <Link href="/services" className="hover:text-primary">Services</Link>
         <span>/</span>
         <Link href={`/services/${params.service}`} className="hover:text-primary capitalize">
-          {params.service.replace('-', ' ')}
+          {params.service.replaceAll('-', ' ')}
         </Link>
         <span>/</span>
-        <span className="text-white">{cluster.title}</span>
+        <span className="text-white" aria-current="page">{cluster.title}</span>
       </nav>
 
       {/* Main Content Area */}
       <h1 className="text-3xl md:text-4xl font-bold text-white mb-8">{cluster.title}</h1>
       
+import DOMPurify from 'isomorphic-dompurify';
+
+export default async function ClusterPage({ params }: { params: { service: string; cluster: string } }) {
+  const cluster = await fetchQuery(api.clusterPages.getByPillarAndSlug, { 
+    pillarSlug: params.service,
+    slug: params.cluster 
+  });
+
+  if (!cluster) return notFound();
+  
+  // Sanitize HTML content to prevent XSS
+  const sanitizedContent = DOMPurify.sanitize(cluster.content);
+
+  return (
+    <article className="max-w-4xl mx-auto px-4 py-12">
+      {/* ... */}
       <div 
         className="prose prose-invert prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: cluster.content }} 
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
       />
+    </article>
+  );
+}
 
       {/* Conversion Section: Sticky or prominent CTA */}
       <div className="mt-16 bg-primary/10 border border-primary rounded-xl p-8 text-center">

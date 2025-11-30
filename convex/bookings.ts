@@ -1,6 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 /**
  * Booking Management Functions
@@ -17,31 +17,30 @@ export const createBooking = mutation({
     customerPhone: v.string(),
     scheduledDate: v.string(),
   },
-  handler: async (ctx, args) => {
-    // Validate required fields
-    if (!args.serviceSlug || !args.customerName || !args.customerEmail || !args.scheduledDate) {
+  handler: async (ctx, args): Promise<Id<"bookings">> => {
+    if (!args.serviceSlug || !args.customerName || !args.customerEmail || !args.customerPhone || !args.scheduledDate) {
       throw new Error("Missing required fields for booking");
     }
 
-    const bookingId = await ctx.db.insert("bookings", {
+    // Insert the booking and return only the ID (original contract)
+    return await ctx.db.insert("bookings", {
       ...args,
+      scheduledDate: Number(args.scheduledDate),
       status: "pending", // Default status for new bookings
       createdAt: Date.now(),
     });
-
-    return bookingId;
   },
 });
 
 // Get bookings by status (for admin dashboard)
 export const getByStatus = query({
-  args: { 
+  args: {
     status: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Doc<"bookings">[]> => {
     const limit = args.limit ?? 100;
-    
+
     return await ctx.db
       .query("bookings")
       .withIndex("by_status", (q) => q.eq("status", args.status))
@@ -52,12 +51,12 @@ export const getByStatus = query({
 
 // Get all pending bookings (most common admin query)
 export const getPending = query({
-  args: { 
+  args: {
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Doc<"bookings">[]> => {
     const limit = args.limit ?? 50;
-    
+
     return await ctx.db
       .query("bookings")
       .withIndex("by_status", (q) => q.eq("status", "pending"))
@@ -93,32 +92,29 @@ export const getById = query({
 
 // Get bookings by service slug (for analytics)
 export const getByService = query({
-  args: { 
+  args: {
     serviceSlug: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Doc<"bookings">[]> => {
     const limit = args.limit ?? 100;
-    
-    const allBookings = await ctx.db
+
+    return await ctx.db
       .query("bookings")
-      .collect();
-    
-    return allBookings
-      .filter(booking => booking.serviceSlug === args.serviceSlug)
-      .sort((a, b) => b.createdAt - a.createdAt) // Most recent first
-      .slice(0, limit);
+      .withIndex("by_serviceSlug", (q) => q.eq("serviceSlug", args.serviceSlug))
+      .order("desc") // Most recent first
+      .take(limit);
   },
 });
 
 // Get recent bookings (for admin overview)
 export const getRecent = query({
-  args: { 
+  args: {
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Doc<"bookings">[]> => {
     const limit = args.limit ?? 20;
-    
+
     return await ctx.db
       .query("bookings")
       .order("desc")
