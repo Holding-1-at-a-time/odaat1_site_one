@@ -8,7 +8,11 @@
  * @module
  */
 
-import type * as myFunctions from "../myFunctions.js";
+import type * as bookings from "../bookings.js";
+import type * as clusterPages from "../clusterPages.js";
+import type * as pillarPages from "../pillarPages.js";
+import type * as reviews from "../reviews.js";
+import type * as seed from "../seed.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +21,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  myFunctions: typeof myFunctions;
+  bookings: typeof bookings;
+  clusterPages: typeof clusterPages;
+  pillarPages: typeof pillarPages;
+  reviews: typeof reviews;
+  seed: typeof seed;
 }>;
 
 /**
