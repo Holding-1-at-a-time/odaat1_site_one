@@ -11,6 +11,13 @@ export const metadata: Metadata = {
     description: "Explore our complete range of auto detailing services including Ceramic Coating, Paint Correction, and Interior Detailing in San Antonio.",
 };
 
+/**
+ * Renders the Services index page: a header, a responsive grid of service pillars, and a contact call-to-action.
+ *
+ * Displays the set of service pillars retrieved from the content API and maps each to a ServiceCard.
+ *
+ * @returns The page's JSX element containing the header, responsive grid of pillars, and a bottom contact CTA.
+ */
 export default async function ServicesIndex() {
     const pillars = await fetchQuery(api.content.getAllPillars, {});
 

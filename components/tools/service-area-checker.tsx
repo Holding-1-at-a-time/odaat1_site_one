@@ -7,6 +7,12 @@ import { MapPin, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+/**
+ * Renders a ZIP code input that lets users check whether a location is within the service area and shows contextual actions.
+ *
+ * @param className - Optional additional className applied to the component container for styling
+ * @returns A React element displaying the ZIP input, check button, loading state, and conditional availability or contact actions
+ */
 export function ServiceAreaChecker({ className }: { className?: string }) {
   const [zip, setZip] = useState("");
   const [status, setStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");

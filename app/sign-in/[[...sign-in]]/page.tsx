@@ -6,6 +6,14 @@ export const metadata: Metadata = {
     title: "Admin Login | One Detail At A Time",
 };
 
+/**
+ * Renders the admin sign-in page with a centered heading and a styled sign-in widget.
+ *
+ * The component displays an "Admin Access" header and embeds a Clerk SignIn widget
+ * with customized appearance tokens for form, header, footer, card, and input elements.
+ *
+ * @returns A JSX element containing the admin sign-in page.
+ */
 export default function Page() {
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">

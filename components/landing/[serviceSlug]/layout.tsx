@@ -9,6 +9,13 @@ export const metadata: Metadata = {
     robots: "noindex, nofollow",
 };
 
+/**
+ * Renders the landing page layout for a specific service slug, wrapping provided page content with a header, analytics injection, and footer.
+ *
+ * @param children - The main page content to render inside the layout.
+ * @param params - A promise that resolves to route parameters; the layout extracts `serviceSlug` to scope analytics and page behavior.
+ * @returns A JSX element representing the complete landing layout for the resolved `serviceSlug`.
+ */
 export default async function LandingLayout({
     children,
     params

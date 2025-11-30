@@ -14,6 +14,12 @@ if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+/**
+ * Seeds the Convex backend with initial data for the auto-detailing business.
+ *
+ * Inserts pillar pages, creates cluster pages, wires cluster relationships, and adds sample reviews.
+ * Logs progress for each step and, on error, logs the error and exits the process with code 1.
+ */
 async function main() {
   console.log("🌱 Starting database seed...");
 

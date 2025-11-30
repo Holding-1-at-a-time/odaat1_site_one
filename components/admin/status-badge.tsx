@@ -5,6 +5,12 @@ interface StatusBadgeProps {
     status: string;
 }
 
+/**
+ * Renders a compact status badge styled according to the provided status.
+ *
+ * @param status - The status label to display. Recognized values: "pending", "confirmed", "completed", "cancelled". Unrecognized values use a default slate style.
+ * @returns A JSX span element containing the `status` text with classes applied for the corresponding status style (or the default style for unknown statuses).
+ */
 export function StatusBadge({ status }: StatusBadgeProps) {
     const styles: Record<string, string> = {
         pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",

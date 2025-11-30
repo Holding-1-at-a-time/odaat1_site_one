@@ -7,6 +7,12 @@ export const metadata: Metadata = {
     robots: "noindex, nofollow", // Prevent indexing of admin pages
 };
 
+/**
+ * Admin layout component that renders a sticky header and a centered main content area for admin pages.
+ *
+ * @param children - Content to render inside the layout's main container
+ * @returns The layout element wrapping `children` with the admin header and main content area
+ */
 export default function AdminLayout({
     children,
 }: {

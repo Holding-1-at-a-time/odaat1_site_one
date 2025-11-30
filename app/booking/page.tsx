@@ -7,6 +7,11 @@ export const metadata: Metadata = {
     description: "Schedule your professional auto detailing service in San Antonio. Quick and easy online booking.",
 };
 
+/**
+ * Render the booking page layout with title, descriptive text, a BookingForm container, and contact/service information.
+ *
+ * @returns JSX element for the booking page containing the header, the BookingForm component, and the contact/service area.
+ */
 export default function BookingPage() {
     return (
         <div className="min-h-screen bg-slate-950 py-16 px-4 sm:px-6 lg:px-8">

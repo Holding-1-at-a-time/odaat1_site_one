@@ -1,6 +1,11 @@
 // file: components/seo/local-business-schema.tsx
 import { BUSINESS_NAP } from "@/lib/constants";
 
+/**
+ * Injects a JSON-LD LocalBusiness schema into the page using values from BUSINESS_NAP.
+ *
+ * @returns A React <script> element of type "application/ld+json" whose content is the serialized LocalBusiness JSON-LD schema
+ */
 export function LocalBusinessSchema() {
     const schema = {
         "@context": "https://schema.org",

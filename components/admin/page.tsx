@@ -8,6 +8,14 @@ import { StatsCards } from "@/components/admin/stats-cards"; // New Stats Compon
 import { CalendarDays, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Renders the admin dashboard page with analytics and a two-tab interface for Bookings and Inbound Leads.
+ *
+ * The component displays a header, analytics summary cards, a tab switcher that highlights the active tab,
+ * and the table corresponding to the selected tab.
+ *
+ * @returns The JSX element for the admin dashboard containing header, stats cards, tab controls, and the active tab's table.
+ */
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<"bookings" | "leads">("bookings");
 

@@ -8,6 +8,13 @@ export const metadata: Metadata = {
     description: "Get in touch with San Antonio's trusted auto detailers. Call (726) 207-1007 or visit us at Stone Oak.",
 };
 
+/**
+ * Render the Contact page with contact details, an embedded Google Map, and a message form.
+ *
+ * Uses BUSINESS_NAP constants for phone, email, and address display (the phone link removes non-digit characters for the `tel:` href). The left column shows contact information and a grayscale-to-color map embed; the right column contains a styled, non-functional contact form stub.
+ *
+ * @returns The JSX element for the contact page.
+ */
 export default function ContactPage() {
     return (
         <div className="bg-slate-950 min-h-screen py-16">

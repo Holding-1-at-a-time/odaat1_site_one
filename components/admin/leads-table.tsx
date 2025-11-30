@@ -7,6 +7,13 @@ import { formatDistanceToNow } from "date-fns";
 import { Loader2, Phone, CheckCircle, Archive, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Display a dashboard table of leads with per-lead actions to update status.
+ *
+ * Renders a loading indicator while leads are being fetched, an empty-state message when there are no leads, or a scrollable table of leads showing received time, prospect contact details, interest (service), status badge, and action buttons to change a lead's status.
+ *
+ * @returns A React element that shows either a loading indicator, an empty-state message, or a table of leads with contact details, interest, status, and action controls to update lead status.
+ */
 export function LeadsTable() {
     const leads = useQuery(api.leads.getDashboardLeads);
     const updateStatus = useMutation(api.leads.updateLeadStatus);

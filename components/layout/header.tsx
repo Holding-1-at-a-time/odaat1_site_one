@@ -6,6 +6,15 @@ import { useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import { BUSINESS_NAP } from "@/lib/constants";
 
+/**
+ * Render the responsive site header with brand, navigation links, contact phone, and booking actions.
+ *
+ * The header displays a horizontal navigation and call-to-action on medium+ screens and a toggleable
+ * mobile menu on small screens. The mobile menu opens and closes via local state and closes when a
+ * navigation or booking link is selected.
+ *
+ * @returns The header JSX element containing the brand, navigation, phone link, and booking controls.
+ */
 export function Header() {
     const [isOpen, setIsOpen] = useState(false);
 

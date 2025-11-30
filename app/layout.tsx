@@ -51,6 +51,14 @@ const jsonLd = {
   "priceRange": "$"
 };
 
+/**
+ * Root application layout that wraps page content with authentication, data providers, and site chrome.
+ *
+ * Renders the root HTML structure with injected JSON-LD and an appearance-configured Clerk provider, nested Convex data providers, a UserSync component, and the site Header, main content area (renders `children`), and Footer.
+ *
+ * @param children - Page content to render inside the main area
+ * @returns The root HTML element containing the document body, providers, injected JSON-LD, header, main (with `children`), and footer
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">

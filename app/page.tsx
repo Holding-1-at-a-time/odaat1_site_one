@@ -3,7 +3,11 @@ import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { CheckCircle, Star, Phone } from "lucide-react";
 
-// This is a React Server Component that fetches data on the server
+/**
+ * Renders the site's home/landing page, including the hero, featured services grid, trust/benefit section, recent customer reviews (when available), and a call-to-action.
+ *
+ * @returns The React element tree for the home page built from featured services and recent reviews.
+ */
 export default async function Home() {
   // Fetch featured services (pillar pages)
   const pillarPages = await fetchQuery(api.pillarPages.listFeatured, {});
