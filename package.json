@@ -14,6 +14,13 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.57.0",
     "@clerk/nextjs": "6.35.5",
+    "@convex-dev/action-retrier": "^0.3.0",
+    "@convex-dev/agent": "^0.3.2",
+    "@convex-dev/presence": "^0.3.0",
+    "@convex-dev/rate-limiter": "^0.3.0",
+    "@convex-dev/resend": "^0.2.0",
+    "@convex-dev/twilio": "^0.2.1",
+    "@convex-dev/workflow": "^0.3.2",
     "convex": "^1.29.3",
     "next": "16.0.5",
     "react": "^19.2.0",
