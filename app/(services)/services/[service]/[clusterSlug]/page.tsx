@@ -10,6 +10,12 @@ interface Props {
   params: Promise<{ serviceSlug: string; clusterSlug: string }>;
 }
 
+/**
+ * Create page metadata for a cluster using the provided route slugs.
+ *
+ * @param params - An object (awaited) containing `serviceSlug` and `clusterSlug` used to fetch the cluster
+ * @returns A Metadata object with `title`, `description`, and `alternates.canonical` set for the cluster page; an empty object if the cluster is not found
+ */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { serviceSlug, clusterSlug } = await params;
   const data = await fetchQuery(api.content.getClusterBySlug, { slug: clusterSlug });
@@ -25,6 +31,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * Renders the cluster content page for a given service and cluster slug.
+ *
+ * Renders page metadata, breadcrumb navigation, the cluster header and HTML content,
+ * injects an FAQ JSON-LD block, and shows a call-to-action section with booking and phone actions.
+ *
+ * @param params - Route parameters object containing `serviceSlug` and `clusterSlug` used to fetch and display the cluster
+ * @returns The page's React element containing the cluster content and UI
+ */
 export default async function ClusterPage({ params }: Props) {
   const { serviceSlug, clusterSlug } = await params;
   const data = await fetchQuery(api.content.getClusterBySlug, { slug: clusterSlug });

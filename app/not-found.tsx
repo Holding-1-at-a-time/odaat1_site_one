@@ -2,6 +2,14 @@
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
 
+/**
+ * Renders a styled "Page Not Found" (404) UI.
+ *
+ * The component displays a centered search icon, a heading, a descriptive message,
+ * and two navigation buttons: "Back Home" and "View All Services".
+ *
+ * @returns A JSX element containing the 404 page layout and navigation links
+ */
 export default function NotFound() {
     return (
         <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 bg-slate-950">

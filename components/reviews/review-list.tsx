@@ -10,6 +10,12 @@ interface ReviewListProps {
   serviceSlug: string;
 }
 
+/**
+ * Renders a list of reviews for the given service slug, including loading and empty states.
+ *
+ * @param serviceSlug - Slug identifier of the service whose reviews will be displayed
+ * @returns A React element containing either a loading indicator, an empty-state message, or a vertical list of review cards showing the reviewer name, relative creation time, a readonly star rating, and the review comment.
+ */
 export function ReviewList({ serviceSlug }: ReviewListProps) {
   const reviews = useQuery(api.reviews.getByService, { serviceSlug });
 

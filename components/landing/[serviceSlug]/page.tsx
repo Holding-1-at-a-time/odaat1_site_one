@@ -11,6 +11,17 @@ interface Props {
     params: Promise<{ serviceSlug: string }>;
 }
 
+/**
+ * Renders the service landing page for the provided service slug.
+ *
+ * Fetches pillar content by `serviceSlug` and returns the composed JSX for the landing page.
+ * If no pillar is found for the slug, this triggers a 404 response via `notFound()`.
+ * The rendered page uses `pillar` fields (serviceName, heroImage, startingPrice, keyFeatures, reviewCount),
+ * computes a typical deposit from `startingPrice`, and falls back to sensible defaults when fields are missing.
+ *
+ * @param params - A promise that resolves to an object containing `serviceSlug`, the slug used to fetch pillar content
+ * @returns The React element for the service landing page; triggers a 404 page if the service slug is not found.
+ */
 export default async function LandingPage({ params }: Props) {
     const { serviceSlug } = await params;
     const pillar = await fetchQuery(api.content.getPillarBySlug, { slug: serviceSlug });

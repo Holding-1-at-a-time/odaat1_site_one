@@ -15,6 +15,17 @@ interface Props {
   params: Promise<{ serviceSlug: string }>;
 }
 
+/**
+ * Builds page metadata for a service identified by its slug.
+ *
+ * Fetches the pillar content for the given `serviceSlug` and constructs a Metadata
+ * object containing the page title, description, canonical alternate, and Open Graph
+ * data (title, description, URL, and image). If no pillar is found, returns an empty object.
+ *
+ * @param params - A promise that resolves to an object with `serviceSlug`, the slug of the service
+ * @returns The Metadata populated from the pillar (title, description, alternates.canonical, openGraph),
+ *          or an empty object if the pillar does not exist.
+ */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { serviceSlug } = await params;
   const pillar = await fetchQuery(api.content.getPillarBySlug, { slug: serviceSlug });
@@ -36,6 +47,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * Render the service landing page for the provided service slug.
+ *
+ * Fetches the pillar and related clusters for the slug, constructs a Service schema,
+ * and renders the page sections: hero, content, features grid, reviews (list and form),
+ * service area checker, and pricing CTA.
+ *
+ * @param params - An object with a `serviceSlug` identifying which service page to render
+ * @returns A React element representing the complete service landing page
+ */
 export default async function ServiceLandingPage({ params }: Props) {
   const { serviceSlug } = await params;
 

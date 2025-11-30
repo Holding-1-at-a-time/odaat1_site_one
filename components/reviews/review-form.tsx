@@ -11,6 +11,15 @@ interface ReviewFormProps {
   serviceSlug: string;
 }
 
+/**
+ * Renders a review submission form for a given service and manages its local state and submission flow.
+ *
+ * The form collects a star rating, the reviewer's name, and a feedback comment; it submits the data to the reviews API,
+ * shows a loading state while submitting, and displays a confirmation panel after a successful submission.
+ *
+ * @param serviceSlug - The identifier of the service being reviewed.
+ * @returns The component's rendered React element.
+ */
 export function ReviewForm({ serviceSlug }: ReviewFormProps) {
   const submitReview = useMutation(api.reviews.submitReview);
   const [rating, setRating] = useState(5);

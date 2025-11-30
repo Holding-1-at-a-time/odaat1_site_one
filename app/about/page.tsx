@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     description: "Founded in 2019, One Detail At A Time is San Antonio's premier certified auto detailing service. Learn about our commitment to excellence.",
 };
 
+/**
+ * Render the About page with company story, key features, and a booking call-to-action.
+ *
+ * @returns The About page JSX element containing a hero, an "Our Story" section with feature cards, and a "Why Choose Us?" panel with benefits and a booking link.
+ */
 export default function AboutPage() {
     return (
         <div className="bg-slate-950 min-h-screen">

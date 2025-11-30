@@ -3,6 +3,13 @@ import Link from "next/link";
 import { BUSINESS_NAP } from "@/lib/constants";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
+/**
+ * Renders the site footer containing brand info, contact details, service links, business hours, and a bottom bar with utility links.
+ *
+ * Contact information is populated from the `BUSINESS_NAP` constant.
+ *
+ * @returns The footer React element used in the page layout.
+ */
 export function Footer() {
     const currentYear = new Date().getFullYear();
 

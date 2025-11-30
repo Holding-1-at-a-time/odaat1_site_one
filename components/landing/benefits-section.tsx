@@ -1,6 +1,11 @@
 // file: components/landing/benefits-section.tsx
 import { Heart, Brain, Zap, Clock } from "lucide-react";
 
+/**
+ * Renders the landing-page benefits section including a charity highlight and three feature cards (Positive Mindset, Boosted Confidence, Reclaimed Time).
+ *
+ * @returns The JSX element for the benefits section.
+ */
 export function BenefitsSection() {
     return (
         <section className="py-16 bg-white text-slate-900">

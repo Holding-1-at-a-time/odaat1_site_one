@@ -4,7 +4,13 @@ import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { ServiceCard } from "@/components/service-card";
 import { BUSINESS_NAP } from "@/lib/constants";
-import { ServiceAreaChecker } from "@/components/tools/service-area-checker"; // Imported
+import { ServiceAreaChecker } from "@/components/tools/service-area-checker"; /**
+ * Render the marketing landing page for the San Antonio mobile auto detailing service.
+ *
+ * The page displays a hero section with CTAs, a "Popular Services" grid that shows the first three content pillars as featured services, and a Service Area section with an area checker and list of service areas.
+ *
+ * @returns The React element representing the complete marketing landing page.
+ */
 
 export default async function HomePage() {
     const pillars = await fetchQuery(api.content.getAllPillars, {});

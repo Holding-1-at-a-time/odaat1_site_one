@@ -10,6 +10,20 @@ interface StarRatingProps {
   className?: string;
 }
 
+/**
+ * Render an interactive star rating control.
+ *
+ * Renders `maxRating` star buttons where stars with a position less than or equal to `rating`
+ * appear filled. When `readonly` is false, clicking a star invokes `onRatingChange` with the
+ * selected star value. Each star includes an accessible `aria-label`.
+ *
+ * @param rating - Current rating value (1 through `maxRating`, or 0 for none)
+ * @param maxRating - Total number of stars to display (default: 5)
+ * @param onRatingChange - Callback invoked with the new rating when a star is clicked
+ * @param readonly - When true, disables interaction and hover/focus styles (default: false)
+ * @param className - Additional CSS classes applied to the root container
+ * @returns The rendered star rating element
+ */
 export function StarRating({
   rating,
   maxRating = 5,

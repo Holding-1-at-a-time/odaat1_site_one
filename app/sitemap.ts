@@ -6,6 +6,11 @@ import { BUSINESS_NAP } from "@/lib/constants";
 
 const BASE_URL = BUSINESS_NAP.url;
 
+/**
+ * Builds the site's sitemap by combining predefined static routes with dynamically generated pillar and cluster routes.
+ *
+ * @returns An array of sitemap entries containing URLs with `lastModified`, `changeFrequency`, and `priority` for static pages, pillars, and clusters
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 1. Fetch Dynamic Data
   const pillars = await fetchQuery(api.content.getAllPillars, {});

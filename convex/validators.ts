@@ -19,14 +19,19 @@ export const validateTimestamp = v.union(
 export const validateUpdatedAt = v.number();
 
 /**
- * Creates a default timestamp (current time) for use in mutations
+ * Get the current epoch timestamp in milliseconds.
+ *
+ * @returns The current epoch time in milliseconds since the Unix epoch.
  */
 export function getCurrentTimestamp(): number {
   return Date.now();
 }
 
 /**
- * Validates that a timestamp is not in the future (with 5 second tolerance)
+ * Determines whether a timestamp is not more than 5 seconds ahead of the current time.
+ *
+ * @param timestamp - Epoch milliseconds to validate.
+ * @returns `true` if `timestamp` is less than or equal to the current time plus a 5-second tolerance, `false` otherwise.
  */
 export function validateTimestampNotFuture(timestamp: number): boolean {
   const currentTime = Date.now();
@@ -35,7 +40,9 @@ export function validateTimestampNotFuture(timestamp: number): boolean {
 }
 
 /**
- * Validates that updatedAt is greater than or equal to createdAt
+ * Determines whether `updatedAt` is greater than or equal to `createdAt`.
+ *
+ * @returns `true` if `updatedAt` is greater than or equal to `createdAt`, `false` otherwise.
  */
 export function validateUpdatedAtAfterCreatedAt(
   updatedAt: number, 
@@ -45,8 +52,14 @@ export function validateUpdatedAtAfterCreatedAt(
 }
 
 /**
- * Runtime validation for create/update operations
- * Throws an error if validation fails
+ * Validates presence and logical correctness of `createdAt` and `updatedAt` timestamps.
+ *
+ * Checks that both fields are present, are not in the future (with tolerance), and that
+ * `updatedAt` is greater than or equal to `createdAt`. If any check fails, throws an Error
+ * containing a comma-separated list of validation failures.
+ *
+ * @param data - An object containing optional `createdAt` and `updatedAt` timestamps (milliseconds since epoch)
+ * @throws Error - When one or more timestamp validations fail; message format: `Timestamp validation failed: <errors>`
  */
 export function validateRequiredTimestamps(data: {
   createdAt?: number;
@@ -81,7 +94,10 @@ export function validateRequiredTimestamps(data: {
 }
 
 /**
- * Ensures updatedAt is always set to current time for new records
+ * Provide a timestamp to use for `updatedAt`, defaulting to the current time when none is supplied.
+ *
+ * @param timestamp - Optional existing `updatedAt` value to use instead of generating a new one
+ * @returns The provided `timestamp` if defined, otherwise the current epoch time in milliseconds
  */
 export function ensureUpdatedAt(timestamp?: number): number {
   return timestamp || getCurrentTimestamp();

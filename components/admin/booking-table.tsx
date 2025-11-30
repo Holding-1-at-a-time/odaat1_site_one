@@ -7,6 +7,14 @@ import { StatusBadge } from "./status-badge";
 import { format } from "date-fns";
 import { Loader2, Check, X, CheckCheck } from "lucide-react";
 
+/**
+ * Render a bookings dashboard table with status badges and action buttons to update booking status.
+ *
+ * Displays a centered loading spinner while bookings are loading, an empty-state message when there are no bookings,
+ * and a responsive table of bookings (customer, service, date, status, actions) when data is available.
+ *
+ * @returns The table element containing bookings and action controls; a loader is rendered if data is loading, and a "No bookings found." message is shown when the list is empty.
+ */
 export function BookingTable() {
     const bookings = useQuery(api.bookings.getDashboardBookings);
     const updateStatus = useMutation(api.bookings.updateBookingStatus);

@@ -6,6 +6,12 @@ interface ServiceCardProps {
     pillar: Doc<"pillarPages">;
 }
 
+/**
+ * Renders a clickable service card linking to /services/{slug} with title, description, and rating metadata.
+ *
+ * @param pillar - Pillar document containing `slug`, `serviceName`, and `metaDescription`; `ratingValue` and `reviewCount` are shown with fallbacks of 5.0 and 0 respectively.
+ * @returns A JSX element: a linked card that navigates to the service page and displays the service title, description, an "Explore Guide" cue, and rating/review metadata.
+ */
 export function ServiceCard({ pillar }: ServiceCardProps) {
     return (
         <Link

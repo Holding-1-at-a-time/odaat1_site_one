@@ -9,6 +9,15 @@ import { api } from "@/convex/_generated/api";
 import { bookingSchema, BookingFormValues } from "@/lib/schemas";
 import { Loader2, CheckCircle } from "lucide-react";
 
+/**
+ * Render a booking form for scheduling services with validation, submission, and a post-submission confirmation view.
+ *
+ * The component displays inputs for name, email, phone, service selection, preferred date, and optional notes;
+ * it validates input against the booking schema, submits a booking via the backend mutation, and shows a success
+ * confirmation after a successful submission.
+ *
+ * @returns A React element that renders the booking form UI and the confirmation state after submission.
+ */
 export function BookingForm() {
     const [isSubmitted, setIsSubmitted] = useState(false);
 

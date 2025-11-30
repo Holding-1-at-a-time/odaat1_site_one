@@ -11,6 +11,16 @@ interface LeadFormProps {
     serviceName: string;
 }
 
+/**
+ * Render a lead capture form for a specific service and handle submission to the backend.
+ *
+ * The form collects name, phone, and optional email, shows a loading state while submitting,
+ * and displays a success confirmation after a successful submission.
+ *
+ * @param serviceSlug - Identifier used when submitting the lead to the backend
+ * @param serviceName - Human-readable service name shown in the success confirmation
+ * @returns A lead capture UI that either renders the input form or a submission success panel
+ */
 export function LeadForm({ serviceSlug, serviceName }: LeadFormProps) {
     const submitLead = useMutation(api.leads.submitLead);
     const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
