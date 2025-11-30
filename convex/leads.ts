@@ -14,6 +14,7 @@ export const submitLead = mutation({
         email: v.optional(v.string()),
         notes: v.optional(v.string()),
     },
+    returns: v.id("leads"),
     handler: async (ctx, args) => {
         const leadId = await ctx.db.insert("leads", {
             serviceSlug: args.serviceSlug,
@@ -25,17 +26,15 @@ export const submitLead = mutation({
             createdAt: Date.now(),
         });
 
-        await ctx.scheduler.runAfter(0, internal.leads.notifyOwnerSms, {
+        await ctx.scheduler.runAfter(0, (internal as any).leads.notifyOwnerSms, {
             leadId,
             name: args.name,
             phone: args.phone,
             serviceSlug: args.serviceSlug,
         });
-
         return leadId;
     },
 });
-
 // Internal Action: SMS Notification
 export const notifyOwnerSms = internalAction({
     args: {
@@ -44,6 +43,7 @@ export const notifyOwnerSms = internalAction({
         phone: v.string(),
         serviceSlug: v.string(),
     },
+    returns: v.null(),
     handler: async (ctx, args) => {
         const ownerPhone = process.env.OWNER_PHONE_NUMBER;
         if (!ownerPhone) return;
@@ -57,10 +57,10 @@ export const notifyOwnerSms = internalAction({
         }
     },
 });
-
 // REFACTORED: Strict Role Check for Leads Dashboard
 export const getDashboardLeads = query({
     args: {},
+    returns: v.array(v.any()),
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return [];
@@ -71,13 +71,13 @@ export const getDashboardLeads = query({
         return await ctx.db.query("leads").order("desc").collect();
     },
 });
-
 // REFACTORED: Strict Role Check for Status Updates
 export const updateLeadStatus = mutation({
     args: {
         leadId: v.id("leads"),
         status: v.string(),
     },
+    returns: v.null(),
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new Error("Unauthorized");

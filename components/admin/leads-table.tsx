@@ -1,6 +1,7 @@
 // file: components/admin/leads-table.tsx
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { formatDistanceToNow } from "date-fns";
@@ -8,8 +9,20 @@ import { Loader2, Phone, CheckCircle, Archive, MessageSquare } from "lucide-reac
 import { cn } from "@/lib/utils";
 
 export function LeadsTable() {
+    const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
     const leads = useQuery(api.leads.getDashboardLeads);
     const updateStatus = useMutation(api.leads.updateLeadStatus);
+
+    const handleStatusUpdate = async (leadId: string, status: string) => {
+        setUpdatingLeadId(leadId);
+        try {
+            await updateStatus({ leadId, status });
+        } catch (error) {
+            console.error(`Failed to update lead status:`, error);
+        } finally {
+            setUpdatingLeadId(null);
+        }
+    };
 
     if (leads === undefined) {
         return (
@@ -22,11 +35,10 @@ export function LeadsTable() {
     if (leads.length === 0) {
         return (
             <div className="text-center p-12 text-slate-400 border border-slate-800 rounded-lg bg-slate-900/50">
-                No leads capture yet. Share your landing pages to get started!
+                No leads captured yet. Share your landing pages to get started!
             </div>
         );
     }
-
     return (
         <div className="overflow-x-auto rounded-lg border border-slate-800">
             <table className="w-full text-left text-sm text-slate-400">
@@ -79,29 +91,53 @@ export function LeadsTable() {
                                 <div className="flex justify-end gap-2">
                                     {lead.status === "new" && (
                                         <button
-                                            onClick={() => updateStatus({ leadId: lead._id, status: "contacted" })}
-                                            className="p-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-md transition-colors"
+                                            onClick={() => handleStatusUpdate(lead._id, "contacted")}
+                                            disabled={updatingLeadId === lead._id}
+                                            className={cn(
+                                                "p-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-md transition-colors",
+                                                updatingLeadId === lead._id && "opacity-50 cursor-not-allowed"
+                                            )}
                                             title="Mark as Contacted"
                                         >
-                                            <MessageSquare className="w-4 h-4" />
+                                            {updatingLeadId === lead._id ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <MessageSquare className="w-4 h-4" />
+                                            )}
                                         </button>
                                     )}
                                     {lead.status !== "converted" && (
                                         <button
-                                            onClick={() => updateStatus({ leadId: lead._id, status: "converted" })}
-                                            className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500/20 rounded-md transition-colors"
+                                            onClick={() => handleStatusUpdate(lead._id, "converted")}
+                                            disabled={updatingLeadId === lead._id}
+                                            className={cn(
+                                                "p-2 bg-green-500/10 text-green-500 hover:bg-green-500/20 rounded-md transition-colors",
+                                                updatingLeadId === lead._id && "opacity-50 cursor-not-allowed"
+                                            )}
                                             title="Mark Converted (Booked)"
                                         >
-                                            <CheckCircle className="w-4 h-4" />
+                                            {updatingLeadId === lead._id ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <CheckCircle className="w-4 h-4" />
+                                            )}
                                         </button>
                                     )}
                                     {lead.status !== "archived" && (
                                         <button
-                                            onClick={() => updateStatus({ leadId: lead._id, status: "archived" })}
-                                            className="p-2 bg-slate-800 text-slate-400 hover:bg-slate-700 rounded-md transition-colors"
+                                            onClick={() => handleStatusUpdate(lead._id, "archived")}
+                                            disabled={updatingLeadId === lead._id}
+                                            className={cn(
+                                                "p-2 bg-slate-800 text-slate-400 hover:bg-slate-700 rounded-md transition-colors",
+                                                updatingLeadId === lead._id && "opacity-50 cursor-not-allowed"
+                                            )}
                                             title="Archive Lead"
                                         >
-                                            <Archive className="w-4 h-4" />
+                                            {updatingLeadId === lead._id ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <Archive className="w-4 h-4" />
+                                            )}
                                         </button>
                                     )}
                                 </div>

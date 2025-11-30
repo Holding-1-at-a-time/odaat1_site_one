@@ -5,16 +5,16 @@ import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Initialize the Resend component
-// We enable the webhook handler to track delivered/bounced status
+// TODO: Add onEmailEvent webhook handler to track delivered/bounced status
 export const resend = new Resend(components.resend, {
-    // Pass your API key via env var RESEND_API_KEY automatically
-    // We can add onEmailEvent here later for advanced tracking
+    // API key is passed via env var RESEND_API_KEY automatically
 });
-
 /**
  * Sends a transactional email for a new lead/booking.
  * Uses the component's internal queue for reliability.
  */
+export const sendBookingEmail = internalMutation({
+    args: {
 export const sendBookingEmail = internalMutation({
     args: {
         email: v.string(),
@@ -22,9 +22,8 @@ export const sendBookingEmail = internalMutation({
         serviceName: v.string(),
         scheduledDate: v.string(),
     },
-    handler: async (ctx, args) => {
-        // In Dev, testMode is true by default (only sends to 'delivered@resend.dev')
-        // Set 'testMode: false' in the constructor above for Production.
+    returns: v.null(),
+    handler: async (ctx, args) => {        // Set 'testMode: false' in the constructor above for Production.
 
         await resend.sendEmail(ctx, {
             from: "One Detail At A Time <onboarding@resend.dev>", // Verify your domain in Resend to change this

@@ -1,10 +1,11 @@
 // file: convex/reindex.ts
+'use node';
+
 import { internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { ollama } from "ollama-ai-provider";
 import { embed } from "ai";
-
 // 1. HELPER: Delete all existing vector data
 export const clearChunks = internalMutation({
     args: {},
@@ -20,6 +21,14 @@ export const clearChunks = internalMutation({
 // 2. HELPER: Fetch all text content to be embedded
 export const getAllContent = internalQuery({
     args: {},
+    returns: v.array(
+        v.object({
+            id: v.union(v.id("pillarPages"), v.id("clusterPages")),
+            slug: v.string(),
+            text: v.string(),
+            type: v.union(v.literal("pillar"), v.literal("cluster")),
+        })
+    ),
     handler: async (ctx) => {
         const pillars = await ctx.db.query("pillarPages").collect();
         const clusters = await ctx.db.query("clusterPages").collect();
@@ -29,18 +38,17 @@ export const getAllContent = internalQuery({
                 id: p._id,
                 slug: p.slug,
                 text: `${p.title}\n\n${p.description || p.metaDescription}\n\n${p.content}`,
-                type: "pillar"
+                type: "pillar" as const
             })),
             ...clusters.map(c => ({
-                id: c._id, // Note: Schema stores sourceId as pillarId, but we might want to track specific page
+                id: c._id,
                 slug: c.slug,
                 text: `${c.title}\n\n${c.description || c.metaDescription}\n\n${c.content}`,
-                type: "cluster"
+                type: "cluster" as const
             }))
         ];
     },
 });
-
 // 3. HELPER: Save a single embedded chunk
 export const saveChunk = internalMutation({
     args: {
@@ -49,6 +57,7 @@ export const saveChunk = internalMutation({
         sourceId: v.id("pillarPages"), // Using pillar ID as the main reference
         sourceSlug: v.string(),
     },
+    returns: v.null(),
     handler: async (ctx, args) => {
         await ctx.db.insert("chunks", {
             text: args.text,
@@ -64,11 +73,11 @@ export const reseed = internalAction({
     args: {},
     handler: async (ctx) => {
         console.log("🧹 Clearing old chunks...");
-        const deleted = await ctx.runMutation(internal.reindex.clearChunks, {});
+        const deleted = await ctx.runMutation((internal as any).reindex.clearChunks, {});
         console.log(`Deleted ${deleted} old chunks.`);
 
         console.log("📚 Fetching content...");
-        const pages = await ctx.runQuery(internal.reindex.getAllContent, {});
+        const pages = await ctx.runQuery((internal as any).reindex.getAllContent, {});
 
         let totalChunks = 0;
 
@@ -77,7 +86,7 @@ export const reseed = internalAction({
 
             // Simple text splitter (split by double newline for paragraphs)
             // In production, use a library like 'langchain/text_splitter'
-            const rawChunks = page.text.split("\n\n").filter(t => t.length > 50);
+            const rawChunks = page.text.split("\n\n").filter((t: string) => t.length > 50);
 
             for (const chunkText of rawChunks) {
                 try {
@@ -89,7 +98,7 @@ export const reseed = internalAction({
 
                     // Only process pillars for now to avoid type errors with sourceId
                     if (page.type === "pillar") {
-                        await ctx.runMutation(internal.reindex.saveChunk, {
+                        await ctx.runMutation((internal as any).reindex.saveChunk, {
                             text: chunkText,
                             embedding: embedding,
                             sourceId: page.id as any, // Cast to Id<"pillarPages">

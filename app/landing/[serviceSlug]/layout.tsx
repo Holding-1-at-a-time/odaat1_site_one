@@ -40,7 +40,7 @@ export default async function LandingLayout({
                 </div>
             </header>
 
-            <main>
+            <main className="pt-24">
                 {children}
             </main>
 
