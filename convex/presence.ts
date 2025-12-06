@@ -2,10 +2,14 @@
 import { mutation, query } from "./_generated/server";
 import { components } from "./_generated/api";
 import { v } from "convex/values";
-import { Presence } from "@convex-dev/presence";
+// Commented out due to missing @convex-dev/presence package
+// import { Presence } from "@convex-dev/presence";
 
 // Initialize Presence Component
-export const presence = new Presence(components.presence);
+// export const presence = new Presence(components.presence);
+
+// Placeholder until package is installed
+export const presence = null;
 
 /**
  * Sent by the client periodically to prove they are online.
@@ -19,7 +23,10 @@ export const heartbeat = mutation({
     },
     handler: async (ctx, args) => {
         // In the future, you can check authentication here
-        return await presence.heartbeat(ctx, args.roomId, args.userId, args.sessionId, args.interval);
+        // TODO: Uncomment when @convex-dev/presence package is installed
+        // return await presence.heartbeat(ctx, args.roomId, args.userId, args.sessionId, args.interval);
+        console.log(`Heartbeat from ${args.userId} in room ${args.roomId}`);
+        return null;
     },
 });
 
@@ -29,7 +36,10 @@ export const heartbeat = mutation({
 export const list = query({
     args: { roomToken: v.string() },
     handler: async (ctx, { roomToken }) => {
-        return await presence.list(ctx, roomToken);
+        // TODO: Uncomment when @convex-dev/presence package is installed
+        // return await presence.list(ctx, roomToken);
+        console.log(`List users in room ${roomToken}`);
+        return [];
     },
 });
 
@@ -39,6 +49,9 @@ export const list = query({
 export const disconnect = mutation({
     args: { sessionToken: v.string() },
     handler: async (ctx, { sessionToken }) => {
-        return await presence.disconnect(ctx, sessionToken);
+        // TODO: Uncomment when @convex-dev/presence package is installed
+        // return await presence.disconnect(ctx, sessionToken);
+        console.log(`Disconnect session ${sessionToken}`);
+        return null;
     },
 });

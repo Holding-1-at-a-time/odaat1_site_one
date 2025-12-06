@@ -8,6 +8,18 @@ import { formatDistanceToNow } from "date-fns";
 import { Loader2, Phone, CheckCircle, Archive, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * A table component for displaying leads.
+ *
+ * The component will display a loading indicator if the leads query is undefined.
+ * If the leads query returns no results, it will display a message indicating that no leads have been captured yet.
+ * If the leads query returns results, it will display a table with the following columns:
+ * - Received: The date the lead was received.
+ * - Prospect: The name and phone number of the lead.
+ * - Interest: The service the lead is interested in.
+ * - Status: The status of the lead.
+ */
+
 export function LeadsTable() {
     const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null);
     const leads = useQuery(api.leads.getDashboardLeads);

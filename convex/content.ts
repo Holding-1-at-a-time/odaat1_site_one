@@ -52,41 +52,7 @@ export const getAllPillars = query({
   },
 });
 
-export const getPillarBySlug = query({
-  args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    const pillar = await ctx.db
-      .query("pillarPages")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-      .unique();
-    return pillar;
-  },
-});
 
-export const getClustersByPillarId = query({
-  args: { pillarId: v.id("pillarPages") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("clusterPages")
-      .withIndex("by_pillar", (q) => q.eq("pillarPageId", args.pillarId))
-      .collect();
-  },
-});
-
-export const getClusterBySlug = query({
-  args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    const cluster = await ctx.db
-      .query("clusterPages")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-      .unique();
-    
-    if (!cluster) return null;
-
-    const pillar = await ctx.db.get(cluster.pillarPageId);
-    return { cluster, pillar };
-  },
-});
 
 // NEW: Helper for Sitemap generation
 export const getAllClusters = query({

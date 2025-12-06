@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { twilio } from "./twilio";
 import { ClerkClaims } from "./users";
+import { Id } from "./_generated/dataModel";
 
 // Public: submitLead (Unchanged)
 export const submitLead = mutation({
@@ -15,26 +16,44 @@ export const submitLead = mutation({
         notes: v.optional(v.string()),
     },
     returns: v.id("leads"),
-    handler: async (ctx, args) => {
+    /**
+     * Submits a new lead and schedules an SMS notification to the owner.
+     * @param {Object} args - Object containing the lead information.
+     * @param {string} args.serviceSlug - Service slug associated with the lead.
+     * @param {string} args.name - Name of the lead.
+     * @param {string} args.phone - Phone number of the lead.
+     * @param {string | undefined} args.email - Email address of the lead (optional).
+     * @param {string | undefined} args.notes - Additional notes about the lead (optional).
+     * @returns {string} - ID of the newly submitted lead.
+     */
+    handler: async (ctx, { serviceSlug, name, phone, email, notes }: {
+        serviceSlug: string;
+        name: string;
+        phone: string;
+        email?: string;
+        notes?: string;
+    }): Promise<Id<"leads">> => {
         const leadId = await ctx.db.insert("leads", {
-            serviceSlug: args.serviceSlug,
-            name: args.name,
-            phone: args.phone,
-            email: args.email,
-            notes: args.notes,
+            serviceSlug,
+            name,
+            phone,
+            email,
+            notes,
             status: "new",
             createdAt: Date.now(),
         });
 
         await ctx.scheduler.runAfter(0, (internal as any).leads.notifyOwnerSms, {
             leadId,
-            name: args.name,
-            phone: args.phone,
-            serviceSlug: args.serviceSlug,
+            name,
+            phone,
+            serviceSlug,
         });
+
         return leadId;
     },
 });
+
 // Internal Action: SMS Notification
 export const notifyOwnerSms = internalAction({
     args: {
@@ -48,14 +67,16 @@ export const notifyOwnerSms = internalAction({
         const ownerPhone = process.env.OWNER_PHONE_NUMBER;
         if (!ownerPhone) return;
         try {
-            await twilio.sendMessage(ctx, {
-                to: ownerPhone,
-                body: `🚀 New Lead!\nService: ${args.serviceSlug}\nName: ${args.name}\nPhone: ${args.phone}`,
-            });
+            if (twilio && typeof (twilio as any).sendMessage === "function") {
+                await (twilio as any).sendMessage(ctx, {
+                    to: ownerPhone,
+                    body: `🚀 New Lead!\nService: ${args.serviceSlug}\nName: ${args.name}\nPhone: ${args.phone}`,
+                });
+            }
         } catch (error) {
             console.error("SMS Failed", error);
         }
-    },
+    }
 });
 // REFACTORED: Strict Role Check for Leads Dashboard
 export const getDashboardLeads = query({
@@ -71,6 +92,7 @@ export const getDashboardLeads = query({
         return await ctx.db.query("leads").order("desc").collect();
     },
 });
+
 // REFACTORED: Strict Role Check for Status Updates
 export const updateLeadStatus = mutation({
     args: {

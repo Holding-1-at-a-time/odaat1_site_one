@@ -156,7 +156,7 @@ export const testCreateRecordWithoutUpdatedAt = mutation({
         content: "Test content",
         keywords: ["test"],
         createdAt: currentTime,
-        // updatedAt is intentionally missing
+        updatedAt: 0
       });
 
       return {

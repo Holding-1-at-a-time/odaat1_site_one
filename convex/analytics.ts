@@ -38,7 +38,7 @@ export const getKeyMetrics = query({
             })),
         })
     ),
-    handler: async (ctx) => {    handler: async (ctx) => {
+    handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return null;
 
@@ -51,12 +51,12 @@ export const getKeyMetrics = query({
         // 1. Views
         const views = await ctx.db
             .query("pageViews")
-            .withIndex("by_slug", q => q.gte("timestamp", thirtyDaysAgo))
+            .filter(q => q.gte(q.field("timestamp"), thirtyDaysAgo))
             .collect();
 
         const leads = await ctx.db
             .query("leads")
-            .withIndex("by_status", q => q.gte("_creationTime", thirtyDaysAgo))
+            .filter(q => q.gte(q.field("_creationTime"), thirtyDaysAgo))
             .collect();
 
         // 3. Bookings

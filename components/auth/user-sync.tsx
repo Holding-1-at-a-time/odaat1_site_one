@@ -55,4 +55,4 @@ export function UserSync() {
     }, [user, isLoaded, syncUser]);
 
     return null; // Invisible component
-}
+}   

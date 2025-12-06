@@ -117,3 +117,5 @@ export const createPillarPage = mutation({
       slug: args.slug.trim(),
       title: args.title.trim(),
     });
+  },
+});

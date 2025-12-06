@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
+import { Users } from 'lucide-react'
 
 /**
  * Booking Management Functions
@@ -12,6 +13,12 @@ import { Doc, Id } from "./_generated/dataModel";
 export const createBooking = mutation({
   args: {
     serviceSlug: v.string(),
+    clusterId: v.id("clusterPages"),
+    pillarId: v.id("pillarPages"),
+    userId: v.id("users"),
+    Users: v.id("users"),
+    clusterSlug: v.optional(v.string()), // Optional for cluster pages
+    pillarSlug: v.optional(v.string()), // Optional for pillar pages
     customerName: v.string(),
     customerEmail: v.string(),
     customerPhone: v.string(),

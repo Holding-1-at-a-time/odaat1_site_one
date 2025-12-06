@@ -61,6 +61,9 @@ export default defineSchema({
 
   bookings: defineTable({
     serviceSlug: v.string(),
+    userId: v.id("users"),
+    clusterId: v.id("clusterPages"),
+    pillarId: v.id("pillarPages"),
     customerName: v.string(),
     customerEmail: v.string(),
     customerPhone: v.string(),

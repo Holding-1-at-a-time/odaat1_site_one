@@ -345,7 +345,10 @@ async function main() {
     // Create pillar pages
     console.log("Creating pillar pages...");
     for (const pillar of pillarPages) {
-      const pillarId = await convex.mutation(api.pillarPages.createPillarPage, pillar);
+      const pillarId = await convex.mutation(api.pillarPages.createPillarPage, {
+        ...pillar,
+        createdAt: Date.now(),
+      });
       console.log(`✅ Created pillar page: ${pillar.serviceName} (${pillarId})`);
     }
 
@@ -625,7 +628,7 @@ async function main() {
         const relatedIds = cluster.relatedClusterIds
           .map(slug => createdClusterIds[slug])
           .filter(id => id) as any; // Type assertion for Convex IDs
-        
+
         if (relatedIds.length > 0) {
           await convex.mutation(api.clusterPages.updateClusterRelationships, {
             clusterSlug: cluster.slug,
